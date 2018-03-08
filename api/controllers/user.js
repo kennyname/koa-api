@@ -5,12 +5,10 @@ const User = require("../models/user")
 
 module.exports = {
   user_signup: async(ctx, next) => {
-    ctx.body = await User.find({email: ctx.request.body.email}).exec()
-    if (ctx.body.length >= 1) {
-      ctx.body = {
-        status: 409,
-        message: 'Mail Exist!'
-      }
+    let users = await User.find({email: ctx.request.body.email}).exec()
+    if (users.length >= 1) {
+      ctx.status = 409
+      ctx.message = 'Mail Exist!'
     } else {
       const hash = bcrypt.hashSync(ctx.request.body.password, 10)
       const user = new User({
@@ -34,10 +32,8 @@ module.exports = {
   user_login: async(ctx, next) => {
     let users = await User.find({ email: ctx.request.body.email }).exec()
     if (users.length < 1) {
-      ctx.body = {
-        status: 401,
-        message: 'Auth Filed'
-      }
+      ctx.status = 409
+      ctx.message = 'Auth failed'
     } else {
       const hash = bcrypt.compare(ctx.request.body.password, users[0].password)
       if (hash) {
@@ -51,9 +47,8 @@ module.exports = {
           token: token
         }
       } else {
-        ctx.body = {
-          message: "Auth failed"
-        }
+        ctx.status = 409
+        ctx.message = 'Auth failed'
       }
     }
   },
