@@ -24,7 +24,7 @@ module.exports = {
           password: new_user.password
         }
       } catch (error) {
-        ctx.throw(500, error)
+        next(error)
       }
     }
   },
